@@ -11,7 +11,7 @@ from optimizers import carbon_opt, oracle, perf_opt, tech, tech_hc
 def main(
     region: str = "US-CAL",
     start_hour: int = 800,
-    interval: int = 24 * 60,
+    interval: int = 30,
     mem_old: int = 512,
     mem_new: int = 512,
     app_list: list = None,

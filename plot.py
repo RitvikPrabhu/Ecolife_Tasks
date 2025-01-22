@@ -80,7 +80,22 @@ def verify(
     print(
         f"Eco-life AVG Carbon is:{sum_carbon_eco/sum_invoke}, Eco-life AVG Service Time is: {sum_st_eco/sum_invoke}"
     )
+    # read the hc-life results:
+    hc_carbon = read_json_file("./results/hill_climbing/carbon.json")
+    hc_st = read_json_file("./results/hill_climbing/st.json")
 
+    sum_carbon_hc = 0
+    sum_st_hc = 0
+
+    for i in range(len(traces)):
+        for _, value in hc_carbon[i].items():
+            sum_carbon_hc += value["carbon"]
+        for _, value in hc_st[i].items():
+            sum_st_hc += value["st"]
+
+    print(
+        f"Hill-Climbing AVG Carbon is:{sum_carbon_hc/sum_invoke}, Hill-Climbing AVG Service Time is: {sum_st_hc/sum_invoke}"
+    )
     # plot
     fig, axs = plt.subplots(
         nrows=1,
@@ -105,11 +120,13 @@ def verify(
         sum_st_carbon / sum_invoke,
         sum_st_oracle / sum_invoke,
         sum_st_eco / sum_invoke,
+        sum_st_hc / sum_invoke,
     )
     min_carbon = min(
         sum_carbon_carbon / sum_invoke,
         sum_carbon_oracle / sum_invoke,
         sum_carbon_eco / sum_invoke,
+        sum_carbon_hc / sum_invoke,
     )
 
     carbon_opt_percent = [
@@ -124,9 +141,13 @@ def verify(
         100 * (sum_st_eco / sum_invoke - min_st) / min_st,
         100 * (sum_carbon_eco / sum_invoke - min_carbon) / min_carbon + x_move,
     ]
+    hc_percent = [
+        100 * (sum_st_hc / sum_invoke - min_st) / min_st,
+        100 * (sum_carbon_hc / sum_invoke - min_carbon) / min_carbon + x_move,
+    ]
 
-    x = [carbon_opt_percent[1], oracle_percent[1], eco_percent[1]]
-    y = [carbon_opt_percent[0], oracle_percent[0], eco_percent[0]]
+    x = [carbon_opt_percent[1], oracle_percent[1], eco_percent[1], hc_percent[1]]
+    y = [carbon_opt_percent[0], oracle_percent[0], eco_percent[0], hc_percent[0]]
 
     axs.set_xlabel(XLABEL, fontsize=FONTSIZE)
     axs.set_ylabel(YLABEL, fontsize=FONTSIZE)
@@ -135,7 +156,7 @@ def verify(
     colors = ["#7fc97f", "#DAA520", "#beaed4", "#17becf"]
 
     markers = ["v", "X", "s", "P"]
-    LABELS = ["CO$_2$-Opt", "Oracle", "Eco-Life"]
+    LABELS = ["CO$_2$-Opt", "Oracle", "Eco-Life", "Hill-Climbing"]
     for i in range(len(x)):
         axs.scatter(
             x=x[i],
